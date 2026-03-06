@@ -1,9 +1,10 @@
 # xhs-bili-to-xhs
 
-将 B 站视频转写为文字，进行总结提炼与爆款风格重写，并通过浏览器自动化写入小红书长文草稿（不自动发布）。
+将 B 站视频或公众号文章转为文字，进行总结提炼与爆款风格重写，并通过浏览器自动化写入小红书长文草稿（不自动发布）。
 
 ## 功能概览
 - 支持 B 站 BV 号或链接转写（faster-whisper medium）
+- 支持公众号文章正文提取（链接抓取或手动粘贴）
 - 自动“脱水总结 + 爆款风格重写”
 - 写入小红书长文草稿（仅暂存，不点击发布）
 
@@ -31,10 +32,15 @@ python3 skills/xhs-bili-to-xhs/scripts/transcribe_bili_tiny.py BV1xxxxxxx /Users
 python3 skills/xhs-bili-to-xhs/scripts/transcribe_bili_tiny.py "https://www.bilibili.com/video/BV1xxxxxxx" /Users/aluan/.openclaw/workspace/tmp/bili_transcript.txt
 ```
 
-### 2. 按爆款模版重写
-参考：`assets/xhs_template.txt` 与 `references/workflow.md`
+### 2. 获取公众号文章正文
+- 有链接：优先抓取正文（`web_fetch`），不完整则浏览器打开后复制正文
+- 无链接：让用户直接粘贴全文或关键段落
+- 清理广告、版权声明、二维码等非正文内容
 
-### 3. 写入小红书长文草稿
+### 3. 按爆款模版重写
+参考：`assets/xhs_template.md` 与 `references/workflow.md`
+
+### 4. 写入小红书长文草稿
 进入创作平台：
 ```
 https://creator.xiaohongshu.com/publish/publish?source=official&from=tab_switch&target=article
