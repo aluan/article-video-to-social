@@ -1,61 +1,76 @@
-# B站/公众号文章 → 小红书长文（草稿）工作流
+<!--
+ * @Author: qiangqiang.luan qiangqiang.luan@17zuoye.com
+ * @Date: 2026-03-07 11:17:31
+ * @LastEditors: qiangqiang.luan qiangqiang.luan@17zuoye.com
+ * @LastEditTime: 2026-03-07 11:17:47
+ * @FilePath: /article-video-to-social/references/workflow.md
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+# 文章/视频 → 社交媒体工作流
 
 ## 目标
-将 B 站视频或公众号文章转为文字，先“总结提炼”，再按小红书爆款风格重写，最终发布到小红书“长文”草稿（禁止自动点击发布）。
+将 B 站视频或微信公众号文章转为文字，提炼核心观点，深度挖掘对投资的启示，最终通过 social-push 发布到社交媒体。
 
 ## 前置条件
 - 已安装：`yt-dlp`、`ffmpeg`
 - 已创建 faster-whisper 虚拟环境：`/Users/aluan/.openclaw/workspace/.venv_faster_whisper`（默认使用 medium 模型）
-- 小红书账号已登录（可通过扫码登录）
+- 已配置 [social-push](https://github.com/aluan/social-push) 工具
 
 ## 步骤
 
-### A. 获取原文（B站视频）
+### A. 获取原始内容
+
+#### A1. B站视频转写
 1. 运行脚本：
    ```bash
-   python3 skills/xhs-bili-to-xhs/scripts/transcribe_bili_tiny.py <BV_ID或URL> /Users/aluan/.openclaw/workspace/tmp/bili_transcript.txt
+   python3 scripts/transcribe_bili_tiny.py <BV_ID或URL> /tmp/transcript.txt
    ```
 2. 打开转写文件，修正明显识别错误（口误、重复、错字）。
 
-### A2. 获取原文（公众号文章）
-1. 有链接时优先抓取正文：
-   - 用 `web_fetch` 获取可读正文；若抓取为空或缺段，改用浏览器打开后复制正文。
+#### A2. 微信公众号文章提取
+1. 有链接时的处理流程：
+   - 第一步：用 `WebFetch` 获取可读正文
+   - 第二步：若抓取失败或为空，使用 `agent-browser`：
+     ```bash
+     agent-browser open <URL>
+     agent-browser wait --load networkidle
+     agent-browser snapshot > /tmp/article.txt
+     ```
+   - 第三步：若仍不完整，提示用户复制粘贴
 2. 无链接时让用户直接粘贴全文或关键段落。
 3. 清理格式：去掉广告、版权声明、二维码等非正文内容。
 
-### B. 总结提炼（脱水干货）
-1. 用“要点清单”提炼 5-8 条核心观点。
-2. 用“原文说 vs 我悟了”结构对每条观点二次表达。
-3. 形成 1 句核心金句，置顶。
+### B. 核心观点提炼
+1. 用"要点清单"提炼 5-8 条核心观点。
+2. 对每条观点进行深度解读和二次表达。
+3. 形成 1-2 句核心金句。
 
-### C. 小红书爆款风格重写
-1. 按模板重写：见 `assets/xhs_template.md`。
-2. 标题采用：疑问式 / 数字式 / 颠覆式。
-3. 内容加入：情绪共鸣 + 场景植入 + 互动问题。
-4. 控制段落短、emoji分段、关键词加#标签。
+### C. 投资启示分析
 
-### D. 登录小红书（如需二维码）
-1. 打开主页并截图二维码：
-   - 访问 `https://www.xiaohongshu.com/`
-   - 发送二维码截图给用户扫码
-2. 登录后刷新，确认顶部显示“我”。
+用 2-3 句话提炼对投资的深度启示：
+- 聚焦投资理念、市场洞察或风险认知中的一个核心点
+- 避免泛泛而谈，要有具体的洞察
+- 保持简洁有力，不超过 3 句话
 
-### E. 发布到小红书（长文草稿）
-1. 打开创作平台长文入口：
-   - `https://creator.xiaohongshu.com/publish/publish?source=official&from=tab_switch&target=article`
-2. 点击“新的创作”进入编辑页。
-3. 填写标题（标题不超过 64 字）。
-4. 点击正文区域粘贴“重写后的版本”。
-5. 点击“一键排版”。
-6. 点击“暂存离开”。
+**详细指导**：参考 `assets/rewrite_prompt.md` 中的"投资启示分析"部分
 
-## 爆款模板要点
-- 爆点前置 + 情绪共鸣 + 场景植入
-- 结尾必带互动问题：
-  - “你最有共鸣的是第几点？”
-- 必加热门话题：
-  - `#个人成长` `#思维提升`（按内容替换）
+### D. 发布到社交媒体
+1. 使用 [social-push](https://github.com/aluan/social-push) 发布
+2. 发布前向用户确认：
+   - 内容是否符合预期
+   - 投资启示是否有深度
+   - 目标平台选择
+   - 发布时间安排
+3. 根据 social-push 配置完成发布
+
+## 内容质量标准
+- 核心观点清晰且有深度
+- 投资启示简洁有力（2-3句话），有具体洞察
+- 避免表面化和泛泛而谈
+- 逻辑严密，论证充分
 
 ## 验证点
-- 草稿箱中出现新草稿，标题正确、内容完整。
-- 禁止自动点击“发布”按钮。
+- 内容已完成核心观点提炼和投资启示分析
+- 符合目标平台的内容规范和格式要求
+- 用户已确认内容质量和发布计划
+- 通过 social-push 成功发布

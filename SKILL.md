@@ -1,49 +1,55 @@
 ---
-name: xhs-bili-to-xhs
-description: Convert a Bilibili video link (BV or URL) or a WeChat public-article into text, summarize and rewrite it, then publish it to Xiaohongshu as a long-article draft using browser automation. Use when the user asks to transcribe B站 or改写公众号文章发小红书（草稿）。
+name: article-video-to-social
+description: Convert Bilibili videos or WeChat articles into social media content. Transcribe videos, extract article text, summarize and rewrite in platform-specific style, then publish via social-push. Use when user asks to convert B站视频/公众号文章 to social media posts.
 ---
 
-# B站/公众号文章 → 小红书长文草稿
+# 文章视频转社交媒体
 
 ## Overview
-将 B 站视频或公众号文章转为文字 → 总结提炼 → 按小红书爆款风格重写 → 写入小红书长文草稿（禁止自动发布）。
+将 B 站视频或微信公众号文章转为文字 → 总结提炼 → 按目标平台风格重写 → 通过 social-push 发布到社交媒体。
 
 ## Workflow (follow in order)
 
-1. **获取原文（B站/公众号）**
-   - B站：
+1. **获取原始内容**
+   - **B站视频**：
      ```bash
-     python3 skills/xhs-bili-to-xhs/scripts/transcribe_bili_tiny.py <BV_ID或URL> /Users/aluan/.openclaw/workspace/tmp/bili_transcript.txt
+     python3 scripts/transcribe_bili_tiny.py <BV_ID或URL> /tmp/transcript.txt
      ```
-     打开转写文件，必要时修正明显识别错误与标题。
-   - 公众号：
-     - 有链接时用 `web_fetch` 抓正文，抓取不完整则用浏览器打开后复制正文。
-     - 无链接时让用户直接粘贴全文或关键段落。
-     - 清理广告、版权声明、二维码等非正文内容。
+     转写完成后，打开文件检查并修正明显识别错误。
 
-2. **总结与重写**
-   - 先“脱水总结”，再按小红书爆款模板重写。
-   - 模板见：`references/workflow.md` 和 `assets/xhs_template.md`。
+   - **微信公众号文章**：
+     - 有链接：
+       1. 优先用 `WebFetch` 抓取正文
+       2. 若抓取失败，使用 `agent-browser` 打开页面：
+          ```bash
+          agent-browser open <URL>
+          agent-browser wait --load networkidle
+          agent-browser snapshot > /tmp/article.txt
+          ```
+       3. 若仍不完整，提示用户复制粘贴
+     - 无链接：让用户直接粘贴全文或关键段落
+     - 清理广告、版权声明、二维码等非正文内容
 
-3. **确认登录**
-   - 若未登录：打开 `https://www.xiaohongshu.com/` 获取二维码截图，发送给用户扫码。
-   - 登录成功后，页面顶部应显示“我”。
+2. **内容处理**
+   - **洗稿重写**：参考 `assets/rewrite_prompt.md` 进行专业的内容重写
+   - **格式优化**：根据目标平台调整展示格式
 
-4. **写入小红书长文草稿**
-   - 打开：`https://creator.xiaohongshu.com/publish/publish?source=official&from=tab_switch&target=article`
-   - 点击“新的创作”，填写标题与正文内容（用重写后的版本）。
-   - 点击“一键排版”。
-   - 点击“暂存离开”。
+3. **发布到社交平台**
+   - 使用 [social-push](https://github.com/aluan/social-push) 发布
+   - 支持平台：小红书、微博、微信公众号等（根据 social-push 配置）
+   - 发布前向用户确认内容和目标平台
 
 ## Rules
-- **禁止自动点击“发布”**，只能保存草稿。
-- 每个关键步骤后用 `agent-browser snapshot -i` 复核页面元素。
-- 避免大段原文照搬，必须重组与提炼。
+- 避免大段原文照搬，必须重组与提炼
+- 发布前必须向用户确认内容和目标平台
+- 尊重各平台内容规范和字数限制
+- 保留原文核心观点，深度挖掘投资价值
 
 ## References
-- 详细流程见：`references/workflow.md`
+- 详细流程：`references/workflow.md`
+- 发布工具：[social-push](https://github.com/aluan/social-push)
 
 ## Resources
-- `scripts/transcribe_bili_tiny.py`：使用 faster-whisper medium 转写
-- `assets/xhs_template.md`：小红书爆款长文模板
-- `references/workflow.md`：公众号文章处理细则
+- `scripts/transcribe_bili_tiny.py`：使用 faster-whisper medium 转写 B 站视频
+- `assets/rewrite_prompt.md`：专业的洗稿重写提示词
+- `references/workflow.md`：详细工作流程说明

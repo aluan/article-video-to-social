@@ -1,12 +1,12 @@
-# xhs-bili-to-xhs
+# article-video-to-social
 
-将 B 站视频或公众号文章转为文字，进行总结提炼与爆款风格重写，并通过浏览器自动化写入小红书长文草稿（不自动发布）。
+将网页文章和视频内容转换为适合社交媒体的格式，并通过 [social-push](https://github.com/aluan/social-push) 发送到各大社交平台。
 
 ## 功能概览
-- 支持 B 站 BV 号或链接转写（faster-whisper medium）
-- 支持公众号文章正文提取（链接抓取或手动粘贴）
-- 自动“脱水总结 + 爆款风格重写”
-- 写入小红书长文草稿（仅暂存，不点击发布）
+- **视频转文字**：支持 B 站视频（BV 号或链接）转写（faster-whisper medium）
+- **文章提取**：支持微信公众号文章正文提取（链接抓取或手动粘贴）
+- **智能改写**：自动总结提炼 + 社交媒体风格重写
+- **多平台发布**：通过 social-push 发送到各大社交平台
 
 ## 环境准备
 1) 安装依赖
@@ -22,35 +22,45 @@ pip install --upgrade pip
 pip install faster-whisper
 ```
 
-## 使用示例
-### 1. 转写 B 站视频
+## 使用流程
+
+### 1. 获取内容源
+**B 站视频转写**
 ```bash
-python3 skills/xhs-bili-to-xhs/scripts/transcribe_bili_tiny.py BV1xxxxxxx /Users/aluan/.openclaw/workspace/tmp/bili_transcript.txt
+python3 scripts/transcribe_bili_tiny.py BV1xxxxxxx /path/to/output.txt
 ```
-或使用链接：
+或使用完整链接：
 ```bash
-python3 skills/xhs-bili-to-xhs/scripts/transcribe_bili_tiny.py "https://www.bilibili.com/video/BV1xxxxxxx" /Users/aluan/.openclaw/workspace/tmp/bili_transcript.txt
+python3 scripts/transcribe_bili_tiny.py "https://www.bilibili.com/video/BV1xxxxxxx" /path/to/output.txt
 ```
 
-### 2. 获取公众号文章正文
-- 有链接：优先抓取正文（`web_fetch`），不完整则浏览器打开后复制正文
-- 无链接：让用户直接粘贴全文或关键段落
-- 清理广告、版权声明、二维码等非正文内容
+**微信公众号文章提取**
+- 有链接：优先使用 `web_fetch` 抓取正文，不完整则浏览器打开后复制
+- 无链接：直接粘贴全文或关键段落
+- 自动清理广告、版权声明、二维码等非正文内容
 
-### 3. 按爆款模版重写
-参考：`assets/xhs_template.md` 与 `references/workflow.md`
+### 2. 内容处理
+- 核心观点提炼：提取 5-8 条核心观点
+- 投资启示分析：深度挖掘对投资的启示
+- 格式优化：适配社交媒体展示格式
 
-### 4. 写入小红书长文草稿
-进入创作平台：
-```
-https://creator.xiaohongshu.com/publish/publish?source=official&from=tab_switch&target=article
-```
-按模板填写标题与正文 → 一键排版 → 暂存离开。
+### 3. 发布到社交平台
+通过 [social-push](https://github.com/aluan/social-push) 发送到目标平台：
+- 小红书
+- 微博
+- 微信公众号
+- 其他社交平台（根据 social-push 支持情况）
 
 ## 注意事项
-- 本工具**不会自动点击发布**。
-- 如遇 B 站高码率限制，可使用登录 cookie 或更换网络。
-- 识别文本可能有误差，建议人工快速校对。
+- 视频转写可能有误差，建议人工快速校对
+- 如遇 B 站高码率限制，可使用登录 cookie 或更换网络
+- 发布前请确认内容符合各平台规范
+- 发布操作由 social-push 处理，具体配置请参考其文档
+
+## 相关资源
+- [social-push](https://github.com/aluan/social-push) - 社交媒体发布工具
+- `assets/rewrite_prompt.md` - 专业洗稿重写提示词
+- `references/workflow.md` - 详细工作流程
 
 ## 安装为 Skill
-- 直接使用本目录，或安装 `dist/` 下的 `.skill` 包。
+直接使用本目录，或安装 `dist/` 下的 `.skill` 包。
