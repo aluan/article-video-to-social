@@ -13,7 +13,7 @@
 
 ## 前置条件
 - 已安装：`yt-dlp`、`ffmpeg`
-- 已创建 faster-whisper 虚拟环境：`/Users/aluan/.openclaw/workspace/.venv_faster_whisper`（默认使用 medium 模型）
+- 已创建 faster-whisper 虚拟环境：`$OPENCLAW_WORKSPACE/.venv_faster_whisper`（默认路径 `~/.openclaw/workspace`，使用 medium 模型）
 - 已配置 [social-push](https://github.com/aluan/social-push) 工具
 
 ## 步骤
@@ -25,20 +25,28 @@
    ```bash
    python3 scripts/transcribe_bili_tiny.py <BV_ID或URL> /tmp/transcript.txt
    ```
+   脚本会优先尝试下载B站字幕（含自动生成字幕），获取不到字幕时自动回退到 faster-whisper 语音转写。
 2. 打开转写文件，修正明显识别错误（口误、重复、错字）。
 
 #### A2. 微信公众号文章提取
 1. 有链接时的处理流程：
-   - 第一步：用 `WebFetch` 获取可读正文
-   - 第二步：若抓取失败或为空，使用 `agent-browser`：
+   - 第一步：打开并等待加载：
      ```bash
      agent-browser open <URL>
      agent-browser wait --load networkidle
-     agent-browser snapshot > /tmp/article.txt
      ```
-   - 第三步：若仍不完整，提示用户复制粘贴
+   - 第二步：获取标题和正文（用 `#js_content` 定位微信正文容器，避免抓到全页 UI 噪音）：
+     ```bash
+     agent-browser get title
+     agent-browser snapshot -s "#js_content" > /tmp/article.txt
+     ```
+   - 第三步：若 `#js_content` 为空（少数模板不同），降级用：
+     ```bash
+     agent-browser snapshot -s ".rich_media_content" > /tmp/article.txt
+     ```
+   - 第四步：若仍不完整，提示用户复制粘贴
 2. 无链接时让用户直接粘贴全文或关键段落。
-3. 清理格式：去掉广告、版权声明、二维码等非正文内容。
+3. 清理格式：去掉广告、版权声明、二维码等非正文内容（snapshot 输出的是 a11y 文本树，图片会显示为 `img "图片"`，可忽略）。
 
 ### B. 核心观点提炼
 1. 用"要点清单"提炼 5-8 条核心观点。
