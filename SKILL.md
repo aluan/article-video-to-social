@@ -19,16 +19,23 @@ description: Convert Bilibili videos or WeChat articles into social media conten
 
    - **微信公众号文章**：
      - 有链接：
-       1. 优先用 `WebFetch` 抓取正文
-       2. 若抓取失败，使用 `agent-browser` 打开页面：
+       1. 打开并等待加载：
           ```bash
           agent-browser open <URL>
           agent-browser wait --load networkidle
-          agent-browser snapshot > /tmp/article.txt
           ```
-       3. 若仍不完整，提示用户复制粘贴
+       2. 获取标题和正文（用 `#js_content` 定位微信正文容器，避免抓到全页 UI 噪音）：
+          ```bash
+          agent-browser get title
+          agent-browser snapshot -s "#js_content" > /tmp/article.txt
+          ```
+       3. 若 `#js_content` 为空（少数模板不同），降级用：
+          ```bash
+          agent-browser snapshot -s ".rich_media_content" > /tmp/article.txt
+          ```
+       4. 若仍不完整，提示用户复制粘贴
      - 无链接：让用户直接粘贴全文或关键段落
-     - 清理广告、版权声明、二维码等非正文内容
+     - 清理广告、版权声明、二维码等非正文内容（snapshot 输出的是 a11y 文本树，图片会显示为 `img "图片"`，可忽略）
 
 2. **内容处理**
    - **洗稿重写**：参考 `assets/rewrite_prompt.md` 进行专业的内容重写
