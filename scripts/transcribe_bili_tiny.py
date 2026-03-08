@@ -5,7 +5,9 @@ import os
 import re
 import subprocess
 import sys
+import glob
 from pathlib import Path
+
 
 def usage():
     print("Usage: transcribe_bili_tiny.py <BV_ID or bilibili url> <output_txt>")
@@ -24,6 +26,80 @@ def run(cmd: list[str]) -> None:
     subprocess.run(cmd, check=True)
 
 
+def parse_vtt(vtt_path: str) -> str:
+    """Parse VTT subtitle file, return plain text without timestamps."""
+    with open(vtt_path, encoding="utf-8") as f:
+        content = f.read()
+
+    lines = content.splitlines()
+    texts = []
+    seen = set()
+    for line in lines:
+        line = line.strip()
+        # Skip header, blank lines, timestamps, and NOTE lines
+        if not line or line == "WEBVTT" or line.startswith("NOTE") or "-->" in line:
+            continue
+        # Skip numeric cue identifiers
+        if re.match(r"^\d+$", line):
+            continue
+        # Remove HTML tags
+        line = re.sub(r"<[^>]+>", "", line)
+        if line and line not in seen:
+            seen.add(line)
+            texts.append(line)
+
+    return "\n".join(texts)
+
+
+def try_download_subtitle(url: str, bv_id: str, tmp_dir: Path) -> str | None:
+    """
+    Try downloading subtitles via yt-dlp.
+    Returns the subtitle text if successful, None otherwise.
+    """
+    subtitle_base = tmp_dir / f"{bv_id}_sub"
+    # Remove any previous subtitle files
+    for f in glob.glob(str(subtitle_base) + ".*"):
+        os.remove(f)
+
+    try:
+        subprocess.run(
+            [
+                "yt-dlp",
+                "--write-sub",
+                "--write-auto-sub",
+                "--sub-langs", "zh,zh-Hans,zh-CN,zh-TW,en",
+                "--skip-download",
+                "-o", str(subtitle_base),
+                url,
+            ],
+            capture_output=True,
+            text=True,
+        )
+    except Exception as e:
+        print(f"yt-dlp subtitle download failed: {e}")
+        return None
+
+    # Find downloaded subtitle files (.vtt preferred)
+    vtt_files = glob.glob(str(subtitle_base) + "*.vtt")
+    if not vtt_files:
+        # Also check for .srt or other formats
+        sub_files = glob.glob(str(subtitle_base) + ".*")
+        sub_files = [f for f in sub_files if not f.endswith(".mp3")]
+        if not sub_files:
+            return None
+        sub_file = sub_files[0]
+        with open(sub_file, encoding="utf-8") as f:
+            return f.read().strip()
+
+    # Parse VTT
+    vtt_file = vtt_files[0]
+    text = parse_vtt(vtt_file)
+    if text.strip():
+        print(f"OK: subtitle downloaded from {vtt_file}")
+        return text.strip()
+    return None
+
+
 def main():
     if len(sys.argv) != 3:
         usage()
@@ -36,25 +112,33 @@ def main():
         print("Error: Unable to extract BV id from input.")
         sys.exit(1)
 
-    workspace = Path("/Users/aluan/.openclaw/workspace")
+    url = source if source.startswith("http") else f"https://www.bilibili.com/video/{bv_id}"
+
+    workspace = Path(os.environ.get("OPENCLAW_WORKSPACE", "~/.openclaw/workspace")).expanduser()
+    tmp_dir = workspace / "tmp"
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+
+    # Step 1: Try subtitle first
+    print("Trying to download subtitles...")
+    subtitle_text = try_download_subtitle(url, bv_id, tmp_dir)
+    if subtitle_text:
+        output_txt.write_text(subtitle_text, encoding="utf-8")
+        print(f"OK: subtitle written to {output_txt}")
+        return
+
+    # Step 2: Fall back to whisper transcription
+    print("No subtitles found, falling back to whisper transcription...")
     venv_python = workspace / ".venv_faster_whisper" / "bin" / "python"
     if not venv_python.exists():
         print("Error: faster-whisper venv not found at .venv_faster_whisper. Create it first.")
         sys.exit(1)
 
-    tmp_dir = workspace / "tmp"
-    tmp_dir.mkdir(parents=True, exist_ok=True)
     audio_path = tmp_dir / f"{bv_id}_audio.mp3"
-
-    url = source if source.startswith("http") else f"https://www.bilibili.com/video/{bv_id}"
-
     run([
         "yt-dlp",
         "-x",
-        "--audio-format",
-        "mp3",
-        "-o",
-        str(audio_path),
+        "--audio-format", "mp3",
+        "-o", str(audio_path),
         url,
     ])
 

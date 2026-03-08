@@ -15,6 +15,7 @@ description: Convert Bilibili videos or WeChat articles into social media conten
      ```bash
      python3 scripts/transcribe_bili_tiny.py <BV_ID或URL> /tmp/transcript.txt
      ```
+     脚本会优先尝试下载B站字幕（含自动生成字幕），获取不到字幕时自动回退到 faster-whisper 语音转写。
      转写完成后，打开文件检查并修正明显识别错误。
 
    - **微信公众号文章**：
