@@ -2,7 +2,7 @@
  * @Author: qiangqiang.luan qiangqiang.luan@17zuoye.com
  * @Date: 2026-03-08 13:23:08
  * @LastEditors: qiangqiang.luan qiangqiang.luan@17zuoye.com
- * @LastEditTime: 2026-03-08 20:30:00
+ * @LastEditTime: 2026-03-08 21:55:53
  * @FilePath: /article-video-to-social/assets/rewrite_prompt.md
 -->
 # 内容洗稿重写提示词
@@ -204,3 +204,4 @@ docker run -d -p 80:80 --name my-nginx nginx
 - 时间节点：必须与原文一致，不得模糊化
 - 引用观点：必须注明观点来源身份（"某机构认为"、"分析师预计"）
 - 重写后内容需符合目标发布平台的内容规范
+- 严禁出现违禁或敏感词

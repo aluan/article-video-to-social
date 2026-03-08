@@ -80,7 +80,8 @@ description: Convert Bilibili videos or WeChat articles into social media conten
 ## Rules
 - 避免大段原文照搬，必须重组与提炼
 - 发布前必须向用户确认内容和目标平台
-- 尊重各平台内容规范和字数限制
+- 尊重各平台内容规范，避免敏感词和违规内容
+- 出现违禁词语时的处理方式：直接停止发布，同时提示用户内容可能违规。
 - 保留原文核心观点，深度挖掘投资价值
 
 ## References
