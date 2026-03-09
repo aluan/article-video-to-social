@@ -65,6 +65,7 @@ def try_download_subtitle(url: str, bv_id: str, tmp_dir: Path) -> str | None:
         subprocess.run(
             [
                 "yt-dlp",
+                "--cookies-from-browser", "chrome",
                 "--write-sub",
                 "--write-auto-sub",
                 "--sub-langs", "zh,zh-Hans,zh-CN,zh-TW,en",
