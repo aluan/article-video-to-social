@@ -1,6 +1,15 @@
 ---
 name: article-video-to-social
 description: Convert Bilibili videos or WeChat articles into social media content. Transcribe videos, extract article text, summarize and rewrite in platform-specific style, then publish via social-push. Use when user asks to convert B站视频/公众号文章 to social media posts.
+license: MIT
+metadata:
+  author: aluan
+  version: 1.0.0
+  requires:
+    - yt-dlp
+    - ffmpeg
+    - faster-whisper
+    - social-push
 ---
 
 # 文章视频转社交媒体
