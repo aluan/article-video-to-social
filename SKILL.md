@@ -42,6 +42,14 @@ description: Convert Bilibili videos or WeChat articles into social media conten
      python3 <本SKILL.md所在目录>/scripts/transcribe_bili_tiny.py <BV_ID或URL> /tmp/transcript.txt
      ```
      脚本会优先尝试下载B站字幕（含自动生成字幕），获取不到字幕时自动回退到 faster-whisper 语音转写。
+     **脚本执行过程中会输出详细进度信息，包括：**
+     - 字幕下载尝试状态
+     - 音频下载进度
+     - Whisper 模型加载状态
+     - 转录进度百分比（每处理 10 个片段更新一次）
+
+     **你必须将脚本输出的所有进度信息实时转发给用户**，让用户了解当前处理状态。
+
      转写完成后，打开文件检查并修正明显识别错误。
      **完成后输出**：`✅ 视频内容转写成功`
 
