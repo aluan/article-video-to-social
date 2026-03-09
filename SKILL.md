@@ -38,7 +38,7 @@ description: Convert Bilibili videos or WeChat articles into social media conten
    - **B站视频**：
      - 先告知用户：`⏳ 正在获取视频内容，若无字幕将启动 Whisper 转写，预计 3-10 分钟，请稍候...`
      ```bash
-     python3 scripts/transcribe_bili_tiny.py <BV_ID或URL> /tmp/transcript.txt
+     python3 "$OPENCLAW_WORKSPACE/skills/article-video-to-social/scripts/transcribe_bili_tiny.py" <BV_ID或URL> /tmp/transcript.txt
      ```
      脚本会优先尝试下载B站字幕（含自动生成字幕），获取不到字幕时自动回退到 faster-whisper 语音转写。
      转写完成后，打开文件检查并修正明显识别错误。
@@ -92,6 +92,6 @@ description: Convert Bilibili videos or WeChat articles into social media conten
 - 发布工具：[social-push](https://github.com/aluan/social-push)
 
 ## Resources
-- `scripts/transcribe_bili_tiny.py`：使用 faster-whisper medium 转写 B 站视频
+- `$OPENCLAW_WORKSPACE/skills/article-video-to-social/scripts/transcribe_bili_tiny.py`：使用 faster-whisper medium 转写 B 站视频
 - `assets/rewrite_prompt.md`：专业的洗稿重写提示词
 - `references/workflow.md`：详细工作流程说明

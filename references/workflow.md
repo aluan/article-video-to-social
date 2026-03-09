@@ -23,7 +23,7 @@
 #### A1. B站视频转写
 1. 运行脚本：
    ```bash
-   python3 scripts/transcribe_bili_tiny.py <BV_ID或URL> /tmp/transcript.txt
+   python3 "$OPENCLAW_WORKSPACE/skills/article-video-to-social/scripts/transcribe_bili_tiny.py" <BV_ID或URL> /tmp/transcript.txt
    ```
    脚本会优先尝试下载B站字幕（含自动生成字幕），获取不到字幕时自动回退到 faster-whisper 语音转写。
 2. 打开转写文件，修正明显识别错误（口误、重复、错字）。

@@ -27,11 +27,11 @@ pip install faster-whisper
 ### 1. 获取内容源
 **B 站视频转写**
 ```bash
-python3 scripts/transcribe_bili_tiny.py BV1xxxxxxx /path/to/output.txt
+python3 "$OPENCLAW_WORKSPACE/skills/article-video-to-social/scripts/transcribe_bili_tiny.py" BV1xxxxxxx /path/to/output.txt
 ```
 或使用完整链接：
 ```bash
-python3 scripts/transcribe_bili_tiny.py "https://www.bilibili.com/video/BV1xxxxxxx" /path/to/output.txt
+python3 "$OPENCLAW_WORKSPACE/skills/article-video-to-social/scripts/transcribe_bili_tiny.py" "https://www.bilibili.com/video/BV1xxxxxxx" /path/to/output.txt
 ```
 
 **微信公众号文章提取**
