@@ -11,7 +11,7 @@
 ## 环境准备
 1) 安装依赖
 ```bash
-brew install yt-dlp ffmpeg
+brew install yt-dlp ffmpeg pandoc
 ```
 
 2) 创建 faster-whisper 虚拟环境

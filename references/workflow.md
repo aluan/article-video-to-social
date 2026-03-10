@@ -2,7 +2,7 @@
  * @Author: qiangqiang.luan qiangqiang.luan@17zuoye.com
  * @Date: 2026-03-07 11:17:31
  * @LastEditors: qiangqiang.luan qiangqiang.luan@17zuoye.com
- * @LastEditTime: 2026-03-07 11:17:47
+ * @LastEditTime: 2026-03-10 23:05:08
  * @FilePath: /article-video-to-social/references/workflow.md
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -12,7 +12,7 @@
 将 B 站视频或微信公众号文章转为文字，提炼核心观点，深度挖掘对投资的启示，最终通过 social-push-skill 发布到社交媒体。
 
 ## 前置条件
-- 已安装：`yt-dlp`、`ffmpeg`
+- 已安装：`yt-dlp`、`ffmpeg`、`pandoc`
 - 已创建 faster-whisper 虚拟环境：`$OPENCLAW_WORKSPACE/.venv_faster_whisper`（默认路径 `~/.openclaw/workspace`，使用 medium 模型）
 - 已配置 [social-push-skill](https://github.com/aluan/social-push-skill) 工具
 
@@ -66,10 +66,12 @@
 1. 使用 [social-push-skill](https://github.com/aluan/social-push-skill) 发布
 2. 发布前向用户确认：
    - 内容是否符合预期
-   - 投资启示是否有深度
    - 目标平台选择
    - 发布时间安排
-3. 根据 social-push-skill 配置完成发布
+3. 发布流程（按顺序执行）：
+   a. 使用 pandoc 将 markdown 转换为纯文本格式
+   b. 使用 `pbcopy` 命令复制到剪切板
+   c. 调用 social-push-skill 发布到目标平台
 
 ## 内容质量标准
 - 核心观点清晰且有深度
