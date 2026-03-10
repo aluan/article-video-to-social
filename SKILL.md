@@ -1,6 +1,6 @@
 ---
 name: article-video-to-social
-description: Convert Bilibili videos or WeChat articles into social media content. Transcribe videos, extract article text, summarize and rewrite in platform-specific style, then publish via social-push. Use when user asks to convert B站视频/公众号文章 to social media posts.
+description: Convert Bilibili videos or WeChat articles into social media content. Transcribe videos, extract article text, summarize and rewrite in platform-specific style, then publish via social-push-skill. Use when user asks to convert B站视频/公众号文章 to social media posts.
 license: MIT
 metadata:
   author: aluan
@@ -9,13 +9,13 @@ metadata:
     - yt-dlp
     - ffmpeg
     - faster-whisper
-    - social-push
+    - social-push-skill
 ---
 
 # 文章视频转社交媒体
 
 ## Overview
-将 B 站视频或微信公众号文章转为文字 → 总结提炼 → 按目标平台风格重写 → 通过 social-push 发布到社交媒体。
+将 B 站视频或微信公众号文章转为文字 → 总结提炼 → 按目标平台风格重写 → 通过 social-push-skill 发布到社交媒体。
 
 ## Progress Feedback（进度反馈规则）
 
@@ -90,8 +90,8 @@ metadata:
    - **完成后输出**：`✅ 洗稿成功`
 
 3. **发布到社交平台**
-   - 使用 [social-push](https://github.com/aluan/social-push) 发布
-   - 支持平台：小红书、微博、微信公众号等（根据 social-push 配置）
+   - 使用 [social-push-skill](https://github.com/aluan/social-push-skill) 发布
+   - 支持平台：小红书、微博、微信公众号等（根据 social-push-skill 配置）
    - 发布前向用户确认内容
    - 用户确认后，如果用户没有指定发布平台，默认就发布到支持的所有平台(小红书、微博、微信公众号等)，如果用户指定了发布平台，就只发布到指定的平台。
 
@@ -125,7 +125,7 @@ metadata:
 
 ## References
 - 详细流程：`references/workflow.md`
-- 发布工具：[social-push](https://github.com/aluan/social-push)
+- 发布工具：[social-push-skill](https://github.com/aluan/social-push-skill)
 
 ## Resources
 - `scripts/transcribe_bili_tiny.py`（与本 SKILL.md 同目录）：使用 faster-whisper medium 转写 B 站视频

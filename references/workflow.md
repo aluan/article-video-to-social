@@ -9,12 +9,12 @@
 # 文章/视频 → 社交媒体工作流
 
 ## 目标
-将 B 站视频或微信公众号文章转为文字，提炼核心观点，深度挖掘对投资的启示，最终通过 social-push 发布到社交媒体。
+将 B 站视频或微信公众号文章转为文字，提炼核心观点，深度挖掘对投资的启示，最终通过 social-push-skill 发布到社交媒体。
 
 ## 前置条件
 - 已安装：`yt-dlp`、`ffmpeg`
 - 已创建 faster-whisper 虚拟环境：`$OPENCLAW_WORKSPACE/.venv_faster_whisper`（默认路径 `~/.openclaw/workspace`，使用 medium 模型）
-- 已配置 [social-push](https://github.com/aluan/social-push) 工具
+- 已配置 [social-push-skill](https://github.com/aluan/social-push-skill) 工具
 
 ## 步骤
 
@@ -63,13 +63,13 @@
 **详细指导**：参考 `assets/rewrite_prompt.md` 中的"投资启示分析"部分
 
 ### D. 发布到社交媒体
-1. 使用 [social-push](https://github.com/aluan/social-push) 发布
+1. 使用 [social-push-skill](https://github.com/aluan/social-push-skill) 发布
 2. 发布前向用户确认：
    - 内容是否符合预期
    - 投资启示是否有深度
    - 目标平台选择
    - 发布时间安排
-3. 根据 social-push 配置完成发布
+3. 根据 social-push-skill 配置完成发布
 
 ## 内容质量标准
 - 核心观点清晰且有深度
@@ -81,4 +81,4 @@
 - 内容已完成核心观点提炼和投资启示分析
 - 符合目标平台的内容规范和格式要求
 - 用户已确认内容质量和发布计划
-- 通过 social-push 成功发布
+- 通过 social-push-skill 成功发布
