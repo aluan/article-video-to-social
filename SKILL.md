@@ -4,7 +4,7 @@ description: Convert Bilibili videos or WeChat articles into social media conten
 license: MIT
 metadata:
   author: aluan
-  version: 1.0.2
+  version: 1.0.3
   requires:
     - yt-dlp
     - ffmpeg
