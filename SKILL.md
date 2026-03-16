@@ -46,19 +46,26 @@ metadata:
 
 1. **获取原始内容**
    - **B站视频**：
-     - 先告知用户：`⏳ 正在获取视频内容，若无字幕将启动 Whisper 转写，预计 3-10 分钟，请稍候...`
-      执行本 skill 目录下的 `scripts/transcribe_bili_tiny.py`（脚本与本 SKILL.md 在同一目录，执行前确认其绝对路径）：
-     ```bash
-     python3 <本SKILL.md所在目录>/scripts/transcribe_bili_tiny.py <BV_ID或URL> /tmp/transcript.txt
-     ```
-     脚本会优先尝试下载B站字幕（含自动生成字幕），获取不到字幕时自动回退到 faster-whisper 语音转写。
-     **脚本执行过程中会输出详细进度信息，包括：**
-     - 字幕下载尝试状态
-     - 音频下载进度
-     - Whisper 模型加载状态
-     - 转录进度百分比（每处理 10 个片段更新一次）
+     - 先告知用户：`⏳ 正在获取视频字幕，若无字幕将启动 Whisper 转写，预计 3-10 分钟，请稍候...`
+     - **步骤 1：尝试使用 bili 命令下载字幕**
+       ```bash
+       bili video <BV_ID> --subtitle > /tmp/transcript.txt 2>&1
+       ```
+       如果命令成功（退出码为 0）且 `/tmp/transcript.txt` 有内容，则字幕下载成功。
 
-     **你必须将脚本输出的所有进度信息实时转发给用户**，让用户了解当前处理状态。
+     - **步骤 2：如果 bili 命令失败，回退到 Python 脚本**
+       执行本 skill 目录下的 `scripts/transcribe_bili_tiny.py`：
+       ```bash
+       python3 <本SKILL.md所在目录>/scripts/transcribe_bili_tiny.py <BV_ID或URL> /tmp/transcript.txt
+       ```
+       脚本会优先尝试下载B站字幕（含自动生成字幕），获取不到字幕时自动回退到 faster-whisper 语音转写。
+       **脚本执行过程中会输出详细进度信息，包括：**
+       - 字幕下载尝试状态
+       - 音频下载进度
+       - Whisper 模型加载状态
+       - 转录进度百分比（每处理 10 个片段更新一次）
+
+       **你必须将脚本输出的所有进度信息实时转发给用户**，让用户了解当前处理状态。
 
      转写完成后，打开文件检查并修正明显识别错误。
      **完成后输出**：`✅ 视频内容转写成功`
