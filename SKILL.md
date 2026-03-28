@@ -1,22 +1,28 @@
+<!--
+Source Code Repositories:
+- wenyan: https://github.com/aluan/wenyan
+- xhs (xiaohongshu-cli): https://github.com/aluan/xiaohongshu-cli
+- xhs-textcard: https://github.com/aluan/XHS-TextCard
+-->
 ---
 name: article-video-to-social
-description: Convert Bilibili videos or WeChat articles into social media content. Transcribe videos, extract article text, summarize and rewrite in platform-specific style, then publish via social-push-skill. Use when user asks to convert B站视频/公众号文章 to social media posts.
+description: Convert Bilibili videos or WeChat articles into social media content. Transcribe videos, extract article text, summarize and rewrite in platform-specific style, then publish to WeChat (wenyan) and Xiaohongshu (xhs). Use when user asks to convert B站视频/公众号文章 to social media posts.
 license: MIT
 metadata:
   author: aluan
   version: 1.0.3
   requires:
-    - yt-dlp
-    - ffmpeg
-    - faster-whisper
+    - bili
     - pandoc
-    - social-push-skill
+    - wenyan
+    - xhs-textcard
+    - xhs
 ---
 
 # 文章视频转社交媒体
 
 ## Overview
-将 B 站视频或微信公众号文章转为文字 → 总结提炼 → 按目标平台风格重写 → 通过 social-push-skill 发布到社交媒体。
+将 B 站视频或微信公众号文章转为文字 → 总结提炼 → 按目标平台风格重写 → 发布到微信公众号（wenyan）和小红书（xhs）。
 
 ## Progress Feedback（进度反馈规则）
 
@@ -27,7 +33,6 @@ metadata:
 | 公众号文章获取完毕 | `✅ 公众号文章获取成功` |
 | B站视频转写完毕 | `✅ 视频内容转写成功` |
 | 洗稿重写完毕 | `✅ 洗稿成功` |
-| 发布到微博完毕 | `✅ 发布到微博成功` |
 | 发布到小红书完毕 | `✅ 发布到小红书成功` |
 | 发布到微信公众号完毕 | `✅ 发布到微信公众号成功` |
 
@@ -46,29 +51,15 @@ metadata:
 
 1. **获取原始内容**
    - **B站视频**：
-     - 先告知用户：`⏳ 正在获取视频字幕，若无字幕将启动 Whisper 转写，预计 3-10 分钟，请稍候...`
-     - **步骤 1：尝试使用 bili 命令下载字幕**
+     - 先告知用户：`⏳ 正在获取视频字幕，请稍候...`
+     - 使用 bili 命令下载字幕：
        ```bash
        bili video <BV_ID> --subtitle > /tmp/transcript.txt 2>&1
        ```
-       如果命令成功（退出码为 0）且 `/tmp/transcript.txt` 有内容，则字幕下载成功。
-
-     - **步骤 2：如果 bili 命令失败，回退到 Python 脚本**
-       执行本 skill 目录下的 `scripts/transcribe_bili_tiny.py`：
-       ```bash
-       python3 <本SKILL.md所在目录>/scripts/transcribe_bili_tiny.py <BV_ID或URL> /tmp/transcript.txt
-       ```
-       脚本会优先尝试下载B站字幕（含自动生成字幕），获取不到字幕时自动回退到 faster-whisper 语音转写。
-       **脚本执行过程中会输出详细进度信息，包括：**
-       - 字幕下载尝试状态
-       - 音频下载进度
-       - Whisper 模型加载状态
-       - 转录进度百分比（每处理 10 个片段更新一次）
-
-       **你必须将脚本输出的所有进度信息实时转发给用户**，让用户了解当前处理状态。
-
-     转写完成后，打开文件检查并修正明显识别错误。
-     **完成后输出**：`✅ 视频内容转写成功`
+     - 如果命令成功（退出码为 0）且 `/tmp/transcript.txt` 有内容，则字幕下载成功
+     - 如果字幕下载失败，提示用户该视频没有可用字幕
+     - 字幕获取成功后，打开文件检查并修正明显识别错误
+     - **完成后输出**：`✅ 视频内容转写成功`
 
    - **微信公众号文章**：
      - 有链接：
@@ -98,36 +89,48 @@ metadata:
    - **完成后输出**：`✅ 洗稿成功`
 
 3. **发布到社交平台**
-   - 使用 [social-push-skill](https://github.com/aluan/social-push-skill) 发布
-   - 支持平台：小红书、微博、微信公众号等（根据 social-push-skill 配置）
+   - 支持平台：微信公众号（wenyan）、小红书（xhs）
    - 发布前向用户确认内容
-   - 用户确认后，如果用户没有指定发布平台，默认就发布到支持的所有平台(小红书、微博、微信公众号等)，如果用户指定了发布平台，就只发布到指定的平台。
+   - 用户确认后，如果用户没有指定发布平台，默认就发布到支持的所有平台（微信公众号、小红书），如果用户指定了发布平台，就只发布到指定的平台。
 
    **发布流程**（按顺序执行）：
-   - **内容渲染和复制**：
-     - 将 markdown 转换为适合社交媒体的纯文本格式并复制到剪切板：
-       ```bash
-       # 使用 pandoc 转换为纯文本（保留段落结构）
-       pandoc -f markdown -t plain --wrap=none /path/to/content.md | pbcopy
-       ```
-     - 输出提示：`✅ 内容已复制到剪切板`
-   - **发布到平台**：
-     - 调用 social-push-skill 发布到目标平台
-     - 发布后根据平台返回结果输出对应反馈：
-       - 成功：`✅ 发布到<平台>成功`
-       - 失败：`❌ 发布到<平台>失败：<简短原因>`
+   - **微信公众号**：
+     - 使用 `wenyan --theme Maize` 命令发布
+     - 发布后输出：`✅ 发布到微信公众号成功` 或 `❌ 发布到微信公众号失败：<简短原因>`
+   - **小红书**：
+     - 使用 `xhs-textcard -i` 命令生成卡片图片
+     - 使用 `xhs` 命令发布笔记
+     - 发布后输出：`✅ 发布到小红书成功` 或 `❌ 发布到小红书失败：<简短原因>`
 
 ## Rules
+
+### 内容处理规则
 - 避免大段原文照搬，必须重组与提炼
-- 尊重各平台内容规范，避免敏感词和违规内容
-- 出现违禁词语时的处理方式：直接停止发布，同时提示用户内容可能违规。
 - 保留原文核心观点，深度挖掘投资价值
+- 用"要点清单"提炼 5-8 条核心观点
+- 对每条观点进行深度解读和二次表达
+- 形成 1-2 句核心金句
+
+### 投资启示分析
+- 用 2-3 句话提炼对投资的深度启示
+- 聚焦投资理念、市场洞察或风险认知中的一个核心点
+- 避免泛泛而谈，要有具体的洞察
+- 保持简洁有力，不超过 3 句话
+
+### 内容质量标准
+- 核心观点清晰且有深度
+- 投资启示简洁有力（2-3句话），有具体洞察
+- 避免表面化和泛泛而谈
+- 逻辑严密，论证充分
+
+### 发布规范
+- 尊重各平台内容规范，避免敏感词和违规内容
+- 出现违禁词语时的处理方式：直接停止发布，同时提示用户内容可能违规
+- 发布前必须向用户确认内容质量和发布计划
+- 确保符合目标平台的内容规范和格式要求
 
 ## References
-- 详细流程：`references/workflow.md`
-- 发布工具：[social-push-skill](https://github.com/aluan/social-push-skill)
+- 发布工具：`wenyan`（微信公众号）、`xhs`（小红书）
 
 ## Resources
-- `scripts/transcribe_bili_tiny.py`（与本 SKILL.md 同目录）：使用 faster-whisper medium 转写 B 站视频
 - `assets/rewrite_prompt.md`：专业的洗稿重写提示词
-- `references/workflow.md`：详细工作流程说明
